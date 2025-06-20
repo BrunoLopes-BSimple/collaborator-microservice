@@ -22,6 +22,11 @@ public class CollaboratorRepositoryEF : GenericRepositoryEF<ICollaborator, Colla
                              .AnyAsync(c => c.UserId == userId);
     }
 
+    public async Task<bool> AlreadyExistsAsync(Guid collbId)
+    {
+        return await _context.Set<CollaboratorDataModel>().AnyAsync(c => c.Id == collbId);
+    }
+
     public async Task<bool> IsRepeated(ICollaborator collaborator)
     {
         return await this._context.Set<CollaboratorDataModel>()

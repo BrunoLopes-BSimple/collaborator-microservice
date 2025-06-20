@@ -6,6 +6,7 @@ using Application.DTO;
 using AutoMapper;
 using Infrastructure;
 using Application.Messaging;
+using Infrastructure.DataModel;
 namespace Application.Services;
 
 public class CollaboratorService
@@ -21,6 +22,17 @@ public class CollaboratorService
         _publisher = messagePublisher;
     }
 
+    public async Task<ICollaborator?> AddCollaboratorReferenceAsync(Guid collabId, Guid userId, PeriodDateTime period)
+    {
+        var collabAlreadyExists = await _collaboratorRepository.AlreadyExistsAsync(collabId);
+
+        if (collabAlreadyExists) return null;
+
+        var newCollab = _collaboratorFactory.Create(collabId, userId, period);
+
+        return await _collaboratorRepository.AddAsync(newCollab);
+    }
+
     public async Task<Result<CreatedCollaboratorDTO>> Create(CreateCollaboratorDTO collabDto)
     {
         ICollaborator newCollab;
@@ -28,16 +40,18 @@ public class CollaboratorService
         {
             newCollab = await _collaboratorFactory.Create(collabDto.UserId, collabDto.PeriodDateTime);
             newCollab = await _collaboratorRepository.AddAsync(newCollab);
+
+            var result = new CreatedCollaboratorDTO(newCollab.UserId, newCollab.Id, newCollab.PeriodDateTime);
+
+            await _publisher.PublishCollaboratorCreatedAsync(newCollab);
+            return Result<CreatedCollaboratorDTO>.Success(result);
         }
         catch (Exception ex)
         {
             return Result<CreatedCollaboratorDTO>.Failure(Error.InternalServerError(ex.Message));
         }
 
-        await _publisher.PublishCollaboratorCreatedAsync(newCollab);
-
-        var result = new CreatedCollaboratorDTO(newCollab.UserId, newCollab.Id,  newCollab.PeriodDateTime); 
-        return Result<CreatedCollaboratorDTO>.Success(result);
+        
     }
 
     /*  // UC9 - Como gestor de RH, quero listar todos os colaboradores
