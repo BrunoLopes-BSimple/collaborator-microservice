@@ -10,6 +10,7 @@ using Infrastructure.Resolvers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Consumers;
+using WebApi.Consumers.Definition;
 using WebApi.Publishers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,7 +55,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
-    x.AddConsumer<CollaboratorConsumer>();
+    x.AddConsumer<CollaboratorConsumer, CollaboratorConsumerDefinition>();
 
     x.UsingRabbitMq((context, cfg) =>
     {

@@ -42,7 +42,6 @@ public class CollaboratorService
             newCollab = await _collaboratorRepository.AddAsync(newCollab);
 
             var result = new CreatedCollaboratorDTO(newCollab.UserId, newCollab.Id, newCollab.PeriodDateTime);
-
             await _publisher.PublishCollaboratorCreatedAsync(newCollab);
             return Result<CreatedCollaboratorDTO>.Success(result);
         }
