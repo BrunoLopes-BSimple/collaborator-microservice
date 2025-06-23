@@ -7,12 +7,13 @@ namespace Application.Services
 {
     public class UserService
     {
-        private IUserRepository _userRepository;
-        private IUserFactory _userFactory;
+        private readonly IUserRepository _userRepository;
+        private readonly IUserFactory _userFactory; 
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IUserFactory userFactory)
         {
             _userRepository = userRepository;
+            _userFactory = userFactory;
         }
 
         public async Task<IUser?> AddUserReferenceAsync(Guid userId)

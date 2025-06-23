@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Services;
+using Domain.Factory;
 using Domain.Interfaces;
 using Domain.IRepository;
+using Domain.Models;
 using Infrastructure;
 using Infrastructure.DataModel;
 using Microsoft.EntityFrameworkCore;
@@ -11,48 +14,54 @@ using Moq;
 
 namespace Application.Tests.UserServiceTests
 {
-    public class AddUserReferenceAsyncTests : UserServiceTestBase
+    public class AddUserReferenceAsyncTests
     {
         [Fact]
-        public async Task AddUserReferenceAsync_ShouldAddUser_WhenUserDoesNotExist()
+        public async Task AddUserReferenceAsync_ShouldAddUser_WhenFactoryCreatesUser()
         {
             // Arrange
+            var userRepoDouble = new Mock<IUserRepository>();
+            var userFactoryDouble = new Mock<IUserFactory>();
+
             var userId = Guid.NewGuid();
+            var user = new User(userId);
+
+            userFactoryDouble.Setup(f => f.Create(userId)).ReturnsAsync(user);
+            userRepoDouble.Setup(r => r.AddAsync(user)).ReturnsAsync(user);
+
+            var service = new UserService(userRepoDouble.Object, userFactoryDouble.Object);
 
             // Act
-            var result = await UserService.AddUserReferenceAsync(userId);
+            var result = await service.AddUserReferenceAsync(userId);
 
             // Assert
-            // 1. Verifica se o método retornou um objeto User
             Assert.NotNull(result);
-            Assert.Equal(userId, result.Id);
+            Assert.Equal(user, result);
 
-            // 2. Verifica DIRETAMENTE na base de dados em memória se o registo foi criado
-            var userInDb = await Context.ValidUserIds.FirstOrDefaultAsync(u => u.Id == userId);
-            Assert.NotNull(userInDb);
-            Assert.Equal(userId, userInDb.Id);
+            userFactoryDouble.Verify(f => f.Create(userId), Times.Once);
+            userRepoDouble.Verify(r => r.AddAsync(user), Times.Once);
         }
 
         [Fact]
-        public async Task AddUserReferenceAsync_ShouldReturnNull_WhenUserAlreadyExists()
+        public async Task AddUserReferenceAsync_ShouldReturnNull_WhenFactoryReturnsNull()
         {
             // Arrange
+            var userRepoDouble = new Mock<IUserRepository>();
+            var userFactoryDouble = new Mock<IUserFactory>();
+
             var userId = Guid.NewGuid();
 
-            // Adiciona previamente o utilizador à base de dados para simular a sua existência
-            Context.ValidUserIds.Add(new UserDataModel { Id = userId });
-            await Context.SaveChangesAsync();
+            userFactoryDouble.Setup(f => f.Create(userId)).ReturnsAsync((User)null);
+
+            var service = new UserService(userRepoDouble.Object, userFactoryDouble.Object);
 
             // Act
-            var result = await UserService.AddUserReferenceAsync(userId);
+            var result = await service.AddUserReferenceAsync(userId);
 
             // Assert
-            // 1. O serviço deve retornar null, pois o utilizador já existia
             Assert.Null(result);
 
-            // 2. Garante que não há duplicados na base de dados
-            var count = await Context.ValidUserIds.CountAsync(u => u.Id == userId);
-            Assert.Equal(1, count);
+            userRepoDouble.Verify(r => r.AddAsync(It.IsAny<IUser>()), Times.Never);
         }
     }
 }

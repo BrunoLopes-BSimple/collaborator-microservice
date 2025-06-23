@@ -1,4 +1,6 @@
 using Application.Messaging;
+using Domain.Interfaces;
+using Domain.Models;
 using MassTransit;
 using Moq;
 using WebApi.Publishers;
@@ -9,31 +11,35 @@ namespace WebApi.IntegrationTests.PublisherTests
     public class PublishCollaboratorTests
     {
         [Fact]
-        public async Task Should_publish_collaborator_created_event()
+        public async Task PublishCollaboratorCreatedAsync_ShouldPublishEventWithCorrectData()
         {
-            // Arrange
-            var mock = new Mock<IPublishEndpoint>();
-            var publisher = new MassTransitPublisher(mock.Object);
+            // Arrange 
+            var publishEndpointDouble = new Mock<IPublishEndpoint>();
+
+            var publisher = new MassTransitPublisher(publishEndpointDouble.Object);
+
+            var collaboratorDouble = new Mock<ICollaborator>();
             var collaboratorId = Guid.NewGuid();
             var userId = Guid.NewGuid();
-            var period = new Domain.Models.PeriodDateTime(DateTime.UtcNow, DateTime.UtcNow.AddYears(1));
+            var period = new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1));
 
-            // Act
-            var collaborator = Mock.Of<Domain.Interfaces.ICollaborator>(c =>
-                c.Id == collaboratorId &&
-                c.UserId == userId &&
-                c.PeriodDateTime == period);
+            collaboratorDouble.Setup(c => c.Id).Returns(collaboratorId);
+            collaboratorDouble.Setup(c => c.UserId).Returns(userId);
+            collaboratorDouble.Setup(c => c.PeriodDateTime).Returns(period);
 
-            await publisher.PublishCollaboratorCreatedAsync(collaborator);
+            // Act 
+            await publisher.PublishCollaboratorCreatedAsync(collaboratorDouble.Object);
 
             // Assert
-            mock.Verify(p => p.Publish(
-                It.Is<CollaboratorCreatedEvent>(m =>
-                    m.Id == collaboratorId &&
-                    m.UserId == userId &&
-                    m.PeriodDateTime == period
+            publishEndpointDouble.Verify(
+                p => p.Publish(
+                    It.Is<CollaboratorCreatedEvent>(e =>
+                        e.Id == collaboratorId &&
+                        e.UserId == userId &&
+                        e.PeriodDateTime == period
+                    ),
+                    It.IsAny<CancellationToken>()
                 ),
-                It.IsAny<CancellationToken>()),
                 Times.Once
             );
         }

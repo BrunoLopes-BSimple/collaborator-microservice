@@ -1,4 +1,4 @@
-using System;
+/* using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,8 +30,6 @@ namespace Application.Tests.UserServiceTests
             Context = new AbsanteeContext(options);
             MapperMock = new Mock<IMapper>();
 
-            // Configurar o AutoMapper para funcionar nos testes
-            // Quando o repositório tentar mapear, retornamos objetos válidos.
             MapperMock.Setup(m => m.Map<UserDataModel, User>(It.IsAny<UserDataModel>()))
                       .Returns((UserDataModel dm) => new User(dm.Id));
 
@@ -48,4 +46,4 @@ namespace Application.Tests.UserServiceTests
             Context.Dispose();
         }
     }
-}
+} */

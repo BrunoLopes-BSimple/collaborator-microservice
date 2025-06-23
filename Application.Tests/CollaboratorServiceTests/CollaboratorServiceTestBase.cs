@@ -1,4 +1,4 @@
-using Application.Messaging;
+/* using Application.Messaging;
 using Application.Services;
 using AutoMapper;
 using Domain.Factory;
@@ -19,7 +19,7 @@ namespace Application.Tests.CollaboratorServiceTests
         protected Mock<ICollaboratorFactory> CollaboratorFactoryMock;
         protected Mock<IMessagePublisher> MessagePublisherMock;
         protected CollaboratorService Service;
-        protected Mock<IMapper> MapperMock; // Adicione esta linha para que o mock seja acessível
+        protected Mock<IMapper> MapperMock; 
 
         protected CollaboratorServiceTestBase()
         {
@@ -30,8 +30,6 @@ namespace Application.Tests.CollaboratorServiceTests
 
             MapperMock = new Mock<IMapper>();
 
-            // Adicione a configuração de mapeamento para Collaborator.
-            // Isto diz ao mock o que fazer quando o repositório pedir para mapear um Collaborator.
             MapperMock.Setup(m => m.Map<Collaborator, CollaboratorDataModel>(It.IsAny<Collaborator>()))
                       .Returns((Collaborator c) => new CollaboratorDataModel
                       {
@@ -40,12 +38,10 @@ namespace Application.Tests.CollaboratorServiceTests
                           PeriodDateTime = c.PeriodDateTime
                       });
 
-            // É também uma boa prática configurar o mapeamento inverso.
             MapperMock.Setup(m => m.Map<CollaboratorDataModel, Collaborator>(It.IsAny<CollaboratorDataModel>()))
                       .Returns((CollaboratorDataModel dm) => new Collaborator(dm.Id, dm.UserId, dm.PeriodDateTime));
 
 
-            // O repositório real agora recebe o mock do mapper configurado
             CollaboratorRepository = new CollaboratorRepositoryEF(Context, MapperMock.Object);
 
             CollaboratorFactoryMock = new Mock<ICollaboratorFactory>();
@@ -64,4 +60,4 @@ namespace Application.Tests.CollaboratorServiceTests
             Context.Dispose();
         }
     }
-}
+} */

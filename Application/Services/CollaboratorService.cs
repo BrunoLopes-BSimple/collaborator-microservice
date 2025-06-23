@@ -45,12 +45,10 @@ public class CollaboratorService
             await _publisher.PublishCollaboratorCreatedAsync(newCollab);
             return Result<CreatedCollaboratorDTO>.Success(result);
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return Result<CreatedCollaboratorDTO>.Failure(Error.InternalServerError(ex.Message));
         }
-
-        
     }
 
     /*  // UC9 - Como gestor de RH, quero listar todos os colaboradores

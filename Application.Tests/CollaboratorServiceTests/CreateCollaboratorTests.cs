@@ -3,46 +3,83 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.DTO;
+using Application.Interfaces;
+using Application.Messaging;
+using Application.Services;
+using Domain.Factory;
 using Domain.Interfaces;
+using Domain.IRepository;
 using Domain.Models;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Application.Tests.CollaboratorServiceTests
 {
-    public class CreateCollaboratorTests : CollaboratorServiceTestBase
+    public class CreateCollaboratorTests
     {
         [Fact]
-        public async Task Create_Should_SaveCollaboratorAndPublishEvent_WhenSuccessful()
+        public async Task Create_ShouldCreateCollaboratorAndPublishMessage_WhenPassingValidData()
         {
-            // Arrange 
-            var createDto = new CreateCollaboratorDTO
-            {
-                UserId = Guid.NewGuid(),
-                PeriodDateTime = new PeriodDateTime(DateTime.UtcNow, DateTime.UtcNow.AddYears(1))
-            };
+            // Arrange
+            var collabRepoDouble = new Mock<ICollaboratorRepository>();
+            var collabFactoryDouble = new Mock<ICollaboratorFactory>();
+            var publisherDouble = new Mock<IMessagePublisher>();
 
-            var expectedCollaborator = new Collaborator(createDto.UserId, createDto.PeriodDateTime);
+            var userId = Guid.NewGuid();
+            var collabId = Guid.NewGuid();
+            var period = new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1));
+            var collab = new Collaborator(collabId, userId, period);
 
-            CollaboratorFactoryMock.Setup(f => f.Create(createDto.UserId, createDto.PeriodDateTime)).ReturnsAsync(expectedCollaborator);
 
-            // Act 
-            var result = await Service.Create(createDto);
+            collabFactoryDouble.Setup(f => f.Create(userId, period)).ReturnsAsync(collab);
+            collabRepoDouble.Setup(cr => cr.AddAsync(It.IsAny<ICollaborator>())).ReturnsAsync(collab);
 
-            // Assert 
+            var service = new CollaboratorService(collabRepoDouble.Object, collabFactoryDouble.Object, publisherDouble.Object);
+            var createDto = new CreateCollaboratorDTO(userId, period);
+
+            // Act
+            var result = await service.Create(createDto);
+
+            // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
-            Assert.Equal(expectedCollaborator.Id, result.Value.CollaboratorId);
 
-            var collabInDb = await Context.Collaborators.FirstOrDefaultAsync(c => c.Id == expectedCollaborator.Id);
-            Assert.NotNull(collabInDb);
-            Assert.Equal(createDto.UserId, collabInDb.UserId);
+            Assert.Equal(collabId, result.Value.CollaboratorId);
+            Assert.Equal(userId, result.Value.UserId);
+            Assert.Equal(period, result.Value.PeriodDateTime);
 
-            MessagePublisherMock.Verify(
-                p => p.PublishCollaboratorCreatedAsync(
-                    It.Is<ICollaborator>(c => c.Id == expectedCollaborator.Id)
-                ),
-                Times.Once);
+            publisherDouble.Verify(p => p.PublishCollaboratorCreatedAsync(collab), Times.Once);
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnFailureResult_WhenFactoryThrowsException()
+        {
+            // Arrange
+            var collabRepoDouble = new Mock<ICollaboratorRepository>();
+            var collabFactoryDouble = new Mock<ICollaboratorFactory>();
+            var publisherDouble = new Mock<IMessagePublisher>();
+
+            var createDto = new CreateCollaboratorDTO(
+                Guid.NewGuid(),
+                new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1))
+            );
+
+            var expectedException = new ArgumentException("Simulated factory error");
+
+            collabFactoryDouble.Setup(f => f.Create(createDto.UserId, createDto.PeriodDateTime)).ThrowsAsync(expectedException);
+
+            var service = new CollaboratorService(collabRepoDouble.Object, collabFactoryDouble.Object, publisherDouble.Object);
+
+
+            // Act
+            var result = await service.Create(createDto);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Null(result.Value);
+            Assert.Equal(result.Error.Message, expectedException.Message);
+
+            collabRepoDouble.Verify(r => r.AddAsync(It.IsAny<ICollaborator>()), Times.Never);
+            publisherDouble.Verify(p => p.PublishCollaboratorCreatedAsync(It.IsAny<ICollaborator>()), Times.Never);
         }
     }
 }

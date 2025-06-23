@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Interfaces;
 using Application.Messaging;
 using Application.Services;
 using Domain.Models;
@@ -11,9 +12,9 @@ namespace WebApi.Consumers
 {
     public class CollaboratorConsumer : IConsumer<CollaboratorCreatedEvent>
     {
-        private readonly CollaboratorService _collabService;
+        private readonly ICollaboratorService _collabService;
 
-        public CollaboratorConsumer(CollaboratorService collabService)
+        public CollaboratorConsumer(ICollaboratorService collabService)
         {
             _collabService = collabService;
         }
