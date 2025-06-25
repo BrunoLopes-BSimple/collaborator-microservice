@@ -9,6 +9,6 @@ namespace Application.Messaging
     public interface IMessagePublisher
     {
         Task PublishCollaboratorCreatedAsync(ICollaborator collaborator);
-
+        Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator);
     }
 }

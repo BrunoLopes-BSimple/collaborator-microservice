@@ -87,5 +87,49 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
             }
         }
 
+        [Fact]
+        public async Task When_CollaboratorUpdatedEvent_IsPublished_ConsumerShould_ConsumeIt()
+        {
+            // Arrange
+            var collabServiceDouble = new Mock<ICollaboratorService>();
+
+            await using var provider = new ServiceCollection()
+                .AddSingleton<ICollaboratorService>(collabServiceDouble.Object)
+                .AddMassTransitTestHarness(cfg =>
+                {
+                    // Registar o consumidor de ATUALIZAÇÃO que queremos testar
+                    cfg.AddConsumer<CollaboratorUpdatedConsumer>();
+                })
+                .BuildServiceProvider(true);
+
+            var harness = provider.GetRequiredService<ITestHarness>();
+            await harness.Start();
+
+            try
+            {
+                // Act
+                var message = new CollaboratorUpdatedEvent(
+                    Guid.NewGuid(),
+                    Guid.NewGuid(),
+                    new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1))
+                );
+
+                await harness.Bus.Publish(message);
+
+                // Assert
+                // Verificar se o nosso consumidor específico consumiu a mensagem
+                Assert.True(await harness.GetConsumerHarness<CollaboratorUpdatedConsumer>().Consumed.Any<CollaboratorUpdatedEvent>());
+
+                // Verificar se o consumidor chamou o método de serviço correto
+                collabServiceDouble.Verify(
+                    s => s.UpdateCollaboratorReferenceAsync(message.Id, message.UserId, message.PeriodDateTime),
+                    Times.Once
+                );
+            }
+            finally
+            {
+                await harness.Stop();
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Application.DTO.Collaborators;
+using Application.Interfaces;
 using Application.Messaging;
 using Application.Services;
 using Domain.Factory;
@@ -10,7 +11,6 @@ using Infrastructure.Resolvers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Consumers;
-using WebApi.Consumers.Definition;
 using WebApi.Publishers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +24,7 @@ builder.Services.AddDbContext<AbsanteeContext>(opt =>
     );
 
 //Services
-builder.Services.AddTransient<CollaboratorService>();
+builder.Services.AddTransient<ICollaboratorService, CollaboratorService>();
 builder.Services.AddTransient<UserService>();
 
 builder.Services.AddTransient<IMessagePublisher, MassTransitPublisher>();
@@ -55,7 +55,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
-    x.AddConsumer<CollaboratorConsumer, CollaboratorConsumerDefinition>();
+    x.AddConsumer<CollaboratorConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {

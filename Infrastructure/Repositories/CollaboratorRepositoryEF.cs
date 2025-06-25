@@ -108,6 +108,7 @@ public class CollaboratorRepositoryEF : GenericRepositoryEF<ICollaborator, Colla
         collaboratorDM.PeriodDateTime = collab.PeriodDateTime;
 
         _context.Set<CollaboratorDataModel>().Update(collaboratorDM);
+        await _context.SaveChangesAsync();
         return _mapper.Map<CollaboratorDataModel, Collaborator>(collaboratorDM);
     }
 }
