@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Application.DTO;
-using Application.Interfaces;
-using Application.Messaging;
+using Application.IPublishers;
 using Application.Services;
 using Domain.Factory;
 using Domain.Interfaces;
 using Domain.IRepository;
 using Domain.Models;
 using Moq;
+using Application.DTO;
 
 namespace Application.Tests.CollaboratorServiceTests
 {

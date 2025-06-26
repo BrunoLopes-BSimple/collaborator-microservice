@@ -1,14 +1,13 @@
 using Domain.Factory;
 using Domain.Interfaces;
 using Domain.IRepository;
-using Domain.Models;
 
 namespace Application.Services
 {
     public class UserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IUserFactory _userFactory; 
+        private readonly IUserFactory _userFactory;
 
         public UserService(IUserRepository userRepository, IUserFactory userFactory)
         {

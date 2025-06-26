@@ -1,8 +1,9 @@
-using Application.Messaging;
+using Application.IPublishers;
 using Domain.Interfaces;
 using Domain.Models;
 using MassTransit;
 using Moq;
+using Domain.Messages;
 using WebApi.Publishers;
 using Xunit;
 
@@ -33,7 +34,7 @@ namespace WebApi.IntegrationTests.PublisherTests
             // Assert
             publishEndpointDouble.Verify(
                 p => p.Publish(
-                    It.Is<CollaboratorCreatedEvent>(e =>
+                    It.Is<CollaboratorCreatedMessage>(e =>
                         e.Id == collaboratorId &&
                         e.UserId == userId &&
                         e.PeriodDateTime == period

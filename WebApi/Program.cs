@@ -1,6 +1,5 @@
 using Application.DTO.Collaborators;
 using Application.Interfaces;
-using Application.Messaging;
 using Application.Services;
 using Domain.Factory;
 using Domain.IRepository;
@@ -12,6 +11,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Consumers;
 using WebApi.Publishers;
+using Application.IPublishers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,11 +56,19 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
     x.AddConsumer<CollaboratorConsumer>();
+    x.AddConsumer<CollaboratorUpdatedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("rabbitmq://localhost");
-        cfg.ConfigureEndpoints(context);
+        var instance = InstanceInfo.InstanceId;
+        cfg.ReceiveEndpoint($"collaborators-cmd-{instance}", e =>
+        {
+            e.ConfigureConsumer<CollaboratorConsumer>(context);
+            e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
+            e.ConfigureConsumer<UserCreatedConsumer>(context);
+
+        });
     });
 });
 

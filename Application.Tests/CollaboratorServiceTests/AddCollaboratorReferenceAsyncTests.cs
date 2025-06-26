@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Messaging;
 using Application.Services;
 using Domain.Factory;
 using Domain.Interfaces;
 using Domain.IRepository;
 using Domain.Models;
 using Moq;
+using Application.IPublishers;
 
 namespace Application.Tests.CollaboratorServiceTests
 {
@@ -20,7 +20,7 @@ namespace Application.Tests.CollaboratorServiceTests
             // Arrange
             var collabRepoDouble = new Mock<ICollaboratorRepository>();
             var collabFactoryDouble = new Mock<ICollaboratorFactory>();
-            var publisherDouble = new Mock<IMessagePublisher>(); 
+            var publisherDouble = new Mock<IMessagePublisher>();
 
             var collabId = Guid.NewGuid();
             var userId = Guid.NewGuid();

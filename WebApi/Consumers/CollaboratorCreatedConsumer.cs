@@ -1,20 +1,19 @@
 using Application.Interfaces;
-using Application.Messaging;
 using MassTransit;
+using Domain.Messages;
 
 namespace WebApi.Consumers
 {
-    public class CollaboratorConsumer : ConsumerDefinition<CollaboratorConsumer>, IConsumer<CollaboratorCreatedEvent>
+    public class CollaboratorConsumer : IConsumer<CollaboratorCreatedMessage>
     {
         private readonly ICollaboratorService _collabService;
 
         public CollaboratorConsumer(ICollaboratorService collabService)
         {
             _collabService = collabService;
-            EndpointName = "cmd-collaborator-created-events";
         }
 
-        public async Task Consume(ConsumeContext<CollaboratorCreatedEvent> context)
+        public async Task Consume(ConsumeContext<CollaboratorCreatedMessage> context)
         {
             await _collabService.AddCollaboratorReferenceAsync(context.Message.Id, context.Message.UserId, context.Message.PeriodDateTime);
         }

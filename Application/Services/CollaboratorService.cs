@@ -2,9 +2,9 @@ using Domain.IRepository;
 using Domain.Interfaces;
 using Domain.Factory;
 using Domain.Models;
-using Application.DTO;
-using Application.Messaging;
+using Application.IPublishers;
 using Application.Interfaces;
+using Application.DTO;
 using Application.DTO.Collaborators;
 namespace Application.Services;
 
@@ -70,7 +70,7 @@ public class CollaboratorService : ICollaboratorService
         var collab = await _collaboratorRepository.GetByIdAsync(dto.Id);
         if (collab == null)
             return Result<CollabUpdatedDTO>.Failure(Error.NotFound("Collaborator not found."));
-        
+
 
         collab.UpdatePeriod(dto.PeriodDateTime);
 

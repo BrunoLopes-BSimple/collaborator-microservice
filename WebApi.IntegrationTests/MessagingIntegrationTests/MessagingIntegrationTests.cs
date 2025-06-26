@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.Interfaces;
-using Application.Messaging;
+using Application.IPublishers;
 using Domain.Models;
 using MassTransit;
 using MassTransit.Testing;
@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using WebApi.Consumers;
 using Xunit;
+using Domain.Messages;
 
 namespace WebApi.IntegrationTests.MessagingIntegrationTests
 {
@@ -62,7 +63,7 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
             try
             {
                 // Act
-                var message = new CollaboratorCreatedEvent(
+                var message = new CollaboratorCreatedMessage(
                     Guid.NewGuid(),
                     Guid.NewGuid(),
                     new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1))
@@ -73,7 +74,7 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
                 // Assert
 
                 // Verificar se o NOSSO consumidor específico consumiu a mensagem
-                Assert.True(await harness.GetConsumerHarness<CollaboratorConsumer>().Consumed.Any<CollaboratorCreatedEvent>());
+                Assert.True(await harness.GetConsumerHarness<CollaboratorConsumer>().Consumed.Any<CollaboratorCreatedMessage>());
 
                 // Verificar se o consumidor realmente fez o seu trabalho, chamando o método correto no serviço
                 collabServiceDouble.Verify(
@@ -108,7 +109,7 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
             try
             {
                 // Act
-                var message = new CollaboratorUpdatedEvent(
+                var message = new CollaboratorUpdatedMessage(
                     Guid.NewGuid(),
                     Guid.NewGuid(),
                     new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1))
@@ -118,7 +119,7 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
 
                 // Assert
                 // Verificar se o nosso consumidor específico consumiu a mensagem
-                Assert.True(await harness.GetConsumerHarness<CollaboratorUpdatedConsumer>().Consumed.Any<CollaboratorUpdatedEvent>());
+                Assert.True(await harness.GetConsumerHarness<CollaboratorUpdatedConsumer>().Consumed.Any<CollaboratorUpdatedMessage>());
 
                 // Verificar se o consumidor chamou o método de serviço correto
                 collabServiceDouble.Verify(

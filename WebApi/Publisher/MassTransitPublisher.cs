@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Application.Messaging;
+using Application.IPublishers;
 using Domain.Interfaces;
 using MassTransit;
+using Domain.Messages;
 
 namespace WebApi.Publishers
 {
@@ -19,7 +16,7 @@ namespace WebApi.Publishers
 
         public async Task PublishCollaboratorCreatedAsync(ICollaborator collaborator)
         {
-            var eventMessage = new CollaboratorCreatedEvent(
+            var eventMessage = new CollaboratorCreatedMessage(
                 collaborator.Id,
                 collaborator.UserId,
                 collaborator.PeriodDateTime
@@ -30,7 +27,7 @@ namespace WebApi.Publishers
 
         public async Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator)
         {
-            var eventMessage = new CollaboratorUpdatedEvent(
+            var eventMessage = new CollaboratorUpdatedMessage(
                 collaborator.Id,
                 collaborator.UserId,
                 collaborator.PeriodDateTime

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.DTO.Collaborators;
-using Application.Messaging;
+using Application.IPublishers;
 using Application.Services;
 using Domain.Factory;
 using Domain.Interfaces;

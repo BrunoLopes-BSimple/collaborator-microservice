@@ -1,8 +1,6 @@
 using Application.DTO;
 using Application.DTO.Collaborators;
 using Application.Interfaces;
-using Application.Services;
-using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;

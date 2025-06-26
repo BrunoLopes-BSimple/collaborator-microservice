@@ -1,10 +1,11 @@
 using Application.Interfaces;
-using Application.Messaging;
+using Application.IPublishers;
 using Domain.Models;
 using MassTransit;
 using Moq;
 using WebApi.Consumers;
 using Xunit;
+using Domain.Messages;
 
 namespace WebApi.IntegrationTests.ConsumerTests
 {
@@ -17,9 +18,9 @@ namespace WebApi.IntegrationTests.ConsumerTests
             var serviceDouble = new Mock<ICollaboratorService>();
             var consumer = new CollaboratorConsumer(serviceDouble.Object);
 
-            var message = new CollaboratorCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1)));
+            var message = new CollaboratorCreatedMessage(Guid.NewGuid(), Guid.NewGuid(), new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1)));
 
-            var context = Mock.Of<ConsumeContext<CollaboratorCreatedEvent>>(c => c.Message == message);
+            var context = Mock.Of<ConsumeContext<CollaboratorCreatedMessage>>(c => c.Message == message);
 
             // act
             await consumer.Consume(context);
