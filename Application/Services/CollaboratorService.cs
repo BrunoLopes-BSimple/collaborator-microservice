@@ -12,12 +12,16 @@ public class CollaboratorService : ICollaboratorService
 {
     private ICollaboratorRepository _collaboratorRepository;
     private ICollaboratorFactory _collaboratorFactory;
+    private ICollaboratorWithoutUserRepository _collaboratorWithoutUserRepository;
+    private ICollaboratorWithoutUserFactory _collaboratorWithoutUserFactory;
     private readonly IMessagePublisher _publisher;
 
-    public CollaboratorService(ICollaboratorRepository collaboratorRepository, ICollaboratorFactory collaboratorFactory, IMessagePublisher messagePublisher)
+    public CollaboratorService(ICollaboratorRepository collaboratorRepository, ICollaboratorFactory collaboratorFactory, ICollaboratorWithoutUserRepository collaboratorWithoutUserRepository, ICollaboratorWithoutUserFactory collaboratorWithoutUserFactory, IMessagePublisher messagePublisher)
     {
         _collaboratorRepository = collaboratorRepository;
         _collaboratorFactory = collaboratorFactory;
+        _collaboratorWithoutUserRepository = collaboratorWithoutUserRepository;
+        _collaboratorWithoutUserFactory = collaboratorWithoutUserFactory;
         _publisher = messagePublisher;
     }
 
@@ -65,6 +69,25 @@ public class CollaboratorService : ICollaboratorService
         }
     }
 
+    public async Task<Result<CreatedCollaboratorWithoutUserDTO>> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto)
+    {
+        ICollaboratorWithoutUser newCollab;
+        try
+        {
+            newCollab = _collaboratorWithoutUserFactory.Create(collabDto.Names, collabDto.Surnames, collabDto.Email, collabDto.DeactivationDate, collabDto.PeriodDateTime);
+            newCollab = await _collaboratorWithoutUserRepository.AddAsync(newCollab);
+
+            var result = new CreatedCollaboratorWithoutUserDTO(newCollab.Id, newCollab.Names, newCollab.Surnames, newCollab.Email, newCollab.DeactivationDate, newCollab.PeriodDateTime);
+
+            await _publisher.SendCollaboratorWithoutUserAsync(newCollab);
+            return Result<CreatedCollaboratorWithoutUserDTO>.Success(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<CreatedCollaboratorWithoutUserDTO>.Failure(Error.InternalServerError(ex.Message));
+        }
+    }
+
     public async Task<Result<CollabUpdatedDTO>?> EditCollaborator(CollabData dto)
     {
         var collab = await _collaboratorRepository.GetByIdAsync(dto.Id);
@@ -83,5 +106,23 @@ public class CollaboratorService : ICollaboratorService
         await _publisher.PublishCollaboratorUpdatedAsync(updateCollabDetails);
         var result = new CollabUpdatedDTO(dto.Id, dto.PeriodDateTime);
         return Result<CollabUpdatedDTO>.Success(result);
+    }
+
+    public async Task<bool> AddUserIdForCollaboratorAsync(Guid userId, Guid collaboratorId)
+    {
+        var collabWithoutUser = await _collaboratorWithoutUserRepository.GetByIdAsync(collaboratorId);
+        if (collabWithoutUser == null)
+            return false;
+
+        ICollaborator newCollab;
+        var newPeriodDateTime = new PeriodDateTime(collabWithoutUser.PeriodDateTime._initDate, collabWithoutUser.PeriodDateTime._finalDate);
+        newCollab = _collaboratorFactory.Create(collabWithoutUser.Id, userId, newPeriodDateTime);
+        newCollab = await _collaboratorRepository.AddAsync(newCollab);
+
+        if (newCollab == null)
+            return false;
+
+
+        return true;
     }
 }

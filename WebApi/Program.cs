@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApi.Consumers;
 using WebApi.Publishers;
 using Application.IPublishers;
+using WebApi.Saga;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,16 +33,19 @@ builder.Services.AddTransient<IMessagePublisher, MassTransitPublisher>();
 //Repositories
 builder.Services.AddTransient<IUserRepository, UserRepositoryEF>();
 builder.Services.AddTransient<ICollaboratorRepository, CollaboratorRepositoryEF>();
+builder.Services.AddTransient<ICollaboratorWithoutUserRepository, CollaboratorWithoutUserRepositoryEF>();
 
 
 //Factories
 builder.Services.AddTransient<ICollaboratorFactory, CollaboratorFactory>();
 builder.Services.AddTransient<IUserFactory, UserFactory>();
+builder.Services.AddTransient<ICollaboratorWithoutUserFactory, CollaboratorWithoutUserFactory>();
 
 
 //Mappers
 builder.Services.AddTransient<UserDataModelConverter>();
 builder.Services.AddTransient<CollaboratorDataModelConverter>();
+builder.Services.AddTransient<CollaboratorWithoutUserDataModelConverter>();
 builder.Services.AddAutoMapper(cfg =>
 {
     //DataModels
@@ -49,25 +53,34 @@ builder.Services.AddAutoMapper(cfg =>
 
     //DTO
     cfg.CreateMap<Collaborator, CollaboratorDTO>();
+    cfg.CreateMap<CollaboratorWithoutUser, CollaboratorWithoutUserDTO>();
 });
 
 // MassTransit
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
-    x.AddConsumer<CollaboratorConsumer>();
+    x.AddConsumer<CollaboratorCreatedConsumer>();
     x.AddConsumer<CollaboratorUpdatedConsumer>();
+
+    x.AddSagaStateMachine<CollaboratorCreatedStateMachine, CollaboratorCreatedState>()
+        .InMemoryRepository();
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("rabbitmq://localhost");
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
         var instance = InstanceInfo.InstanceId;
         cfg.ReceiveEndpoint($"collaborators-cmd-{instance}", e =>
         {
-            e.ConfigureConsumer<CollaboratorConsumer>(context);
+            e.ConfigureConsumer<CollaboratorCreatedConsumer>(context);
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
             e.ConfigureConsumer<UserCreatedConsumer>(context);
-
+            e.StateMachineSaga<CollaboratorCreatedState>(context);
         });
     });
 });

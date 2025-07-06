@@ -26,6 +26,14 @@ public class CollaboratorController : ControllerBase
         return collabCreated.ToActionResult();
     }
 
+    [HttpPost("withoutUser")]
+    public async Task<ActionResult<CreatedCollaboratorWithoutUserDTO>> CreateWithoutUser([FromBody] CreateCollaboratorWithoutUserDTO collabDto)
+    {
+        var collabCreated = await _collabService.CreateWithoutUser(collabDto);
+
+        return collabCreated.ToActionResult();
+    }
+
     [HttpPut]
     public async Task<ActionResult<CollabUpdatedDTO>> updateCollaborator([FromBody] CollabDetailsDTO newCollabData)
     {

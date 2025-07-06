@@ -16,6 +16,7 @@ namespace WebApi.Consumers
         public async Task Consume(ConsumeContext<UserCreatedMessage> context)
         {
             var userId = context.Message.Id;
+            Console.WriteLine("[DEBUG] UserCreatedConsumer");
             await _userService.AddUserReferenceAsync(userId);
         }
     }

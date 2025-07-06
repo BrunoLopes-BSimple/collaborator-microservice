@@ -36,6 +36,32 @@ namespace Infrastructure.Migrations
                     b.ToTable("Collaborators");
                 });
 
+            modelBuilder.Entity("Infrastructure.DataModel.CollaboratorWithoutUserDataModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DeactivationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Names")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Surnames")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CollaboratorsTemp");
+                });
+
             modelBuilder.Entity("Infrastructure.DataModel.UserDataModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -66,6 +92,31 @@ namespace Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("CollaboratorDataModelId");
+                        });
+
+                    b.Navigation("PeriodDateTime")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Infrastructure.DataModel.CollaboratorWithoutUserDataModel", b =>
+                {
+                    b.OwnsOne("Domain.Models.PeriodDateTime", "PeriodDateTime", b1 =>
+                        {
+                            b1.Property<Guid>("CollaboratorWithoutUserDataModelId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("_finalDate")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateTime>("_initDate")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("CollaboratorWithoutUserDataModelId");
+
+                            b1.ToTable("CollaboratorsTemp");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CollaboratorWithoutUserDataModelId");
                         });
 
                     b.Navigation("PeriodDateTime")

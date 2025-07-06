@@ -4,17 +4,18 @@ using Domain.Messages;
 
 namespace WebApi.Consumers
 {
-    public class CollaboratorConsumer : IConsumer<CollaboratorCreatedMessage>
+    public class CollaboratorCreatedConsumer : IConsumer<CollaboratorCreatedMessage>
     {
         private readonly ICollaboratorService _collabService;
 
-        public CollaboratorConsumer(ICollaboratorService collabService)
+        public CollaboratorCreatedConsumer(ICollaboratorService collabService)
         {
             _collabService = collabService;
         }
 
         public async Task Consume(ConsumeContext<CollaboratorCreatedMessage> context)
         {
+            Console.WriteLine("[DEBUG] CollaboratorCreatedConsumer");
             await _collabService.AddCollaboratorReferenceAsync(context.Message.Id, context.Message.UserId, context.Message.PeriodDateTime);
         }
     }
