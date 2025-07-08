@@ -11,7 +11,6 @@ namespace Infrastructure
 
         public AbsanteeContext(DbContextOptions<AbsanteeContext> options) : base(options)
         {
-            Console.WriteLine($"[DEBUG] DB Connection: {Database.GetDbConnection().ConnectionString}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

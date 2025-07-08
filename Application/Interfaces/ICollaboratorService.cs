@@ -9,7 +9,8 @@ namespace Application.Interfaces
     {
         Task<ICollaborator?> AddCollaboratorReferenceAsync(Guid collabId, Guid userId, PeriodDateTime period);
         Task<Result<CreatedCollaboratorDTO>> Create(CreateCollaboratorDTO collabDto);
-        Task<Result<CreatedCollaboratorWithoutUserDTO>> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto);
+        Task<CreatedCollaboratorWithoutUserDTO> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto, Guid correlationId);
+        Task<Result<CreateCollaboratorWithoutUserDTO>> StartSagaCollabWithoutUser(CreateCollaboratorWithoutUserDTO collabDto);
         Task<Result<CollabUpdatedDTO>?> EditCollaborator(CollabData dto);
         Task<bool> AddUserIdForCollaboratorAsync(Guid userId, Guid collaboratorId);
         Task<ICollaborator?> UpdateCollaboratorReferenceAsync(Guid collabId, Guid userId, PeriodDateTime period);

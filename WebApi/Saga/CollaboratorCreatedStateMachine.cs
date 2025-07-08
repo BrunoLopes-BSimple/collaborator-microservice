@@ -1,6 +1,5 @@
+using Application.DTO.Collaborators;
 using Application.Interfaces;
-using Application.Services;
-using Domain.Commands;
 using Domain.Messages;
 using MassTransit;
 
@@ -9,48 +8,44 @@ namespace WebApi.Saga;
 public class CollaboratorCreatedStateMachine : MassTransitStateMachine<CollaboratorCreatedState>
 {
     public State WaitingForUserCreation { get; private set; }
-    public Event<CollaboratorWithoutUserCreatedMessage> CollaboratorWithoutUserCreatedMessage { get; private set; }
+    public Event<CollaboratorWithoutUserStartSagaMessage> CollaboratorWithoutUserStartSagaMessage { get; private set; }
     public Event<UserFromCollaboratorCreatedMessage> UserFromCollaboratorCreatedMessage { get; private set; }
 
     public CollaboratorCreatedStateMachine()
     {
+
         InstanceState(x => x.CurrentState);
 
-        Event(() => CollaboratorWithoutUserCreatedMessage, x =>
+        Event(() => CollaboratorWithoutUserStartSagaMessage, x =>
         {
-            x.CorrelateById(context => context.Message.Id);
-
+            x.CorrelateById(context => context.Message.CorrelationId);
             x.InsertOnInitial = true;
             x.SetSagaFactory(context => new CollaboratorCreatedState
             {
-                CorrelationId = context.Message.Id,
-                CollaboratorId = context.Message.Id,
+                CorrelationId = context.Message.CorrelationId,
                 Names = context.Message.Names,
                 Surnames = context.Message.Surnames,
                 Email = context.Message.Email,
+                CollaboratorPeriodDateTime = context.Message.PeriodDateTime
             });
         });
 
         Event(() => UserFromCollaboratorCreatedMessage, x =>
-            x.CorrelateBy((saga, context) => saga.CollaboratorId == context.Message.CollaboratorId)
+            x.CorrelateBy((saga, context) => saga.Email == context.Message.Email)
         );
 
         Initially(
-            When(CollaboratorWithoutUserCreatedMessage)
+            When(CollaboratorWithoutUserStartSagaMessage)
                 .ThenAsync(async context =>
                 {
-                    Console.WriteLine("[DEBUG] MACHINE GOOOOAT" + InstanceInfo.InstanceId);
+                    Console.WriteLine("[DEBUG] MACHINE --- FIRST STAGE ---  CollaboratorWithoutUserStartSagaMessage ---" + InstanceInfo.InstanceId);
                     var msg = context.Message;
 
-                    var sendEndpoint = await context.GetSendEndpoint(new Uri("queue:users-cmd-saga"));
-                    await sendEndpoint.Send(new CreateUserFromCollaboratorCommand(
-                        InstanceInfo.InstanceId,
-                        msg.Id,
-                        msg.Names,
-                        msg.Surnames,
-                        msg.Email,
-                        msg.DeactivationDate
-                    )); ;
+                    var serviceProvider = context.GetPayload<IServiceProvider>();
+                    var collaboratorService = serviceProvider.GetService<ICollaboratorService>();
+                    var createCollabDto = new CreateCollaboratorWithoutUserDTO(msg.Names, msg.Surnames, msg.Email, msg.DeactivationDate, msg.PeriodDateTime);
+
+                    await collaboratorService.CreateWithoutUser(createCollabDto, msg.CorrelationId);
                 })
                 .TransitionTo(WaitingForUserCreation)
         );
@@ -59,23 +54,17 @@ public class CollaboratorCreatedStateMachine : MassTransitStateMachine<Collabora
             When(UserFromCollaboratorCreatedMessage)
                 .ThenAsync(async context =>
                 {
+                    Console.WriteLine("[DEBUG] MACHINE --- FIRST STAGE ---  UserFromCollaboratorCreatedMessage ---" + InstanceInfo.InstanceId);
+
                     var saga = context.Saga;
 
-                    saga.UserId = context.Message.Id;
+                    saga.UserId = context.Message.UserId;
                     saga.UserPeriodDateTime = context.Message.PeriodDateTime;
 
                     var serviceProvider = context.GetPayload<IServiceProvider>();
                     var collaboratorService = serviceProvider.GetService<ICollaboratorService>();
-                    var userService = serviceProvider.GetService<UserService>();
 
-                    await collaboratorService.AddUserIdForCollaboratorAsync(context.Message.Id, context.Message.CollaboratorId);
-                    await userService.AddUserReferenceAsync(context.Message.Id);
-
-                    await context.Publish(new CollaboratorCreatedMessage(
-                        saga.CollaboratorId,
-                        saga.UserId,
-                        context.Message.PeriodDateTime
-                    ));
+                    await collaboratorService.AddUserIdForCollaboratorAsync(context.Message.UserId, context.Message.CollaboratorId);
                 })
                 .Finalize()
         );

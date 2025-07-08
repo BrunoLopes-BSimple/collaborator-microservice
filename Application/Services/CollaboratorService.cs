@@ -6,6 +6,7 @@ using Application.IPublishers;
 using Application.Interfaces;
 using Application.DTO;
 using Application.DTO.Collaborators;
+using Domain.Messages;
 namespace Application.Services;
 
 public class CollaboratorService : ICollaboratorService
@@ -69,7 +70,7 @@ public class CollaboratorService : ICollaboratorService
         }
     }
 
-    public async Task<Result<CreatedCollaboratorWithoutUserDTO>> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto)
+    public async Task<CreatedCollaboratorWithoutUserDTO> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto, Guid correlationId)
     {
         ICollaboratorWithoutUser newCollab;
         try
@@ -79,14 +80,30 @@ public class CollaboratorService : ICollaboratorService
 
             var result = new CreatedCollaboratorWithoutUserDTO(newCollab.Id, newCollab.Names, newCollab.Surnames, newCollab.Email, newCollab.DeactivationDate, newCollab.PeriodDateTime);
 
-            await _publisher.SendCollaboratorWithoutUserAsync(newCollab);
-            return Result<CreatedCollaboratorWithoutUserDTO>.Success(result);
+            await _publisher.SendCreateUserFromCollaboratorCommandAsync(result, correlationId);
+
+            return result;
         }
         catch (ArgumentException ex)
         {
-            return Result<CreatedCollaboratorWithoutUserDTO>.Failure(Error.InternalServerError(ex.Message));
+            return null;
         }
     }
+
+    public async Task<Result<CreateCollaboratorWithoutUserDTO>> StartSagaCollabWithoutUser(CreateCollaboratorWithoutUserDTO collabDto)
+    {
+        try
+        {
+            await _publisher.SendCollaboratorWithoutUserCreatedAsync(collabDto);
+
+            return Result<CreateCollaboratorWithoutUserDTO>.Success(collabDto);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<CreateCollaboratorWithoutUserDTO>.Failure(Error.InternalServerError(ex.Message));
+        }
+    }
+
 
     public async Task<Result<CollabUpdatedDTO>?> EditCollaborator(CollabData dto)
     {
@@ -118,6 +135,8 @@ public class CollaboratorService : ICollaboratorService
         var newPeriodDateTime = new PeriodDateTime(collabWithoutUser.PeriodDateTime._initDate, collabWithoutUser.PeriodDateTime._finalDate);
         newCollab = _collaboratorFactory.Create(collabWithoutUser.Id, userId, newPeriodDateTime);
         newCollab = await _collaboratorRepository.AddAsync(newCollab);
+
+        await _publisher.PublishCollaboratorCreatedAsync(newCollab);
 
         if (newCollab == null)
             return false;
