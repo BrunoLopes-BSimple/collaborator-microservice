@@ -84,4 +84,25 @@ public class CollaboratorService : ICollaboratorService
         var result = new CollabUpdatedDTO(dto.Id, dto.PeriodDateTime);
         return Result<CollabUpdatedDTO>.Success(result);
     }
+
+    public async Task<Result<ICollaborator>> ConvertTempToFullCollaborator(Guid collabId, Guid userId, PeriodDateTime periodDateTime)
+    {
+        try
+        {
+            // Use factory to create full collaborator
+            var fullCollaborator = _collaboratorFactory.Create(collabId, userId, periodDateTime);
+
+            // Save to repository
+            var bdResult = await _collaboratorRepository.AddAsync(fullCollaborator);
+
+            // Publish event
+            await _publisher.PublishCollaboratorCreatedAsync(bdResult);
+
+            return Result<ICollaborator>.Success(bdResult);
+        }
+        catch (Exception ex)
+        {
+            return Result<ICollaborator>.Failure(Error.InternalServerError(ex.Message));
+        }
+    }
 }

@@ -11,5 +11,6 @@ namespace Application.Interfaces
         Task<Result<CreatedCollaboratorDTO>> Create(CreateCollaboratorDTO collabDto);
         Task<Result<CollabUpdatedDTO>?> EditCollaborator(CollabData dto);
         Task<ICollaborator?> UpdateCollaboratorReferenceAsync(Guid collabId, Guid userId, PeriodDateTime period);
+        Task<Result<ICollaborator>> ConvertTempToFullCollaborator(Guid collabId, Guid userId, PeriodDateTime periodDateTime);
     }
 }

@@ -24,7 +24,6 @@ namespace WebApi.Publishers
 
             await _publishEndpoint.Publish(eventMessage);
         }
-
         public async Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator)
         {
             var eventMessage = new CollaboratorUpdatedMessage(
@@ -35,5 +34,6 @@ namespace WebApi.Publishers
 
             await _publishEndpoint.Publish(eventMessage);
         }
+
     }
 }
