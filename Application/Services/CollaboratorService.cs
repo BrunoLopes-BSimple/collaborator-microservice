@@ -70,7 +70,7 @@ public class CollaboratorService : ICollaboratorService
         }
     }
 
-    public async Task<CreatedCollaboratorWithoutUserDTO> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto, Guid correlationId)
+    public async Task<CreatedCollaboratorWithoutUserDTO> CreateWithoutUser(CreateCollaboratorWithoutUserDTO collabDto)
     {
         ICollaboratorWithoutUser newCollab;
         try
@@ -80,7 +80,7 @@ public class CollaboratorService : ICollaboratorService
 
             var result = new CreatedCollaboratorWithoutUserDTO(newCollab.Id, newCollab.Names, newCollab.Surnames, newCollab.Email, newCollab.DeactivationDate, newCollab.PeriodDateTime);
 
-            await _publisher.SendCreateUserFromCollaboratorCommandAsync(result, correlationId);
+            await _publisher.SendCreateUserFromCollaboratorCommandAsync(result);
 
             return result;
         }
@@ -125,15 +125,15 @@ public class CollaboratorService : ICollaboratorService
         return Result<CollabUpdatedDTO>.Success(result);
     }
 
-    public async Task<bool> AddUserIdForCollaboratorAsync(Guid userId, Guid collaboratorId)
+    public async Task<bool> ConvertCollaboratorTempToCollaboratorAsync(ConvertCollaboratorTempDTO dto)
     {
-        var collabWithoutUser = await _collaboratorWithoutUserRepository.GetByIdAsync(collaboratorId);
+        var collabWithoutUser = await _collaboratorWithoutUserRepository.GetByEmailAsync(dto.Email);
         if (collabWithoutUser == null)
             return false;
 
         ICollaborator newCollab;
         var newPeriodDateTime = new PeriodDateTime(collabWithoutUser.PeriodDateTime._initDate, collabWithoutUser.PeriodDateTime._finalDate);
-        newCollab = _collaboratorFactory.Create(collabWithoutUser.Id, userId, newPeriodDateTime);
+        newCollab = _collaboratorFactory.Create(collabWithoutUser.Id, dto.UserId, newPeriodDateTime);
         newCollab = await _collaboratorRepository.AddAsync(newCollab);
 
         await _publisher.PublishCollaboratorCreatedAsync(newCollab);

@@ -14,6 +14,7 @@ using WebApi.Publishers;
 using Application.IPublishers;
 using WebApi.Saga;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -80,6 +81,10 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<CollaboratorCreatedConsumer>(context);
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
             e.ConfigureConsumer<UserCreatedConsumer>(context);
+        });
+
+        cfg.ReceiveEndpoint($"collaborators-cmd-saga-{instance}", e =>
+        {
             e.StateMachineSaga<CollaboratorCreatedState>(context);
         });
     });

@@ -67,12 +67,10 @@ public class CollaboratorWithoutUserRepositoryEF : GenericRepositoryEF<ICollabor
         return collabs;
     }
 
-    public async Task<ICollaboratorWithoutUser?> GetByNameSurnameEmailAsync(string names, string surnames, string email)
+    public async Task<ICollaboratorWithoutUser?> GetByEmailAsync(string email)
     {
         var collabDM = await _context.Set<CollaboratorWithoutUserDataModel>()
-                            .FirstOrDefaultAsync(c => c.Names == names &&
-                                                c.Surnames == surnames &&
-                                                c.Email == email);
+                            .FirstOrDefaultAsync(c => c.Email == email);
 
         if (collabDM == null)
             return null;

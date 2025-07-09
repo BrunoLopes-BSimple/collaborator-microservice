@@ -52,15 +52,13 @@ namespace WebApi.Publishers
                 collaborator.PeriodDateTime
             );
 
-            var endpoint = await _sendEndpoint.GetSendEndpoint(new Uri($"queue:collaborators-cmd-{InstanceInfo.InstanceId}"));
+            var endpoint = await _sendEndpoint.GetSendEndpoint(new Uri($"queue:collaborators-cmd-saga-{InstanceInfo.InstanceId}"));
             await endpoint.Send(eventMessage);
         }
 
-        public async Task SendCreateUserFromCollaboratorCommandAsync(CreatedCollaboratorWithoutUserDTO collaborator, Guid correlationId)
+        public async Task SendCreateUserFromCollaboratorCommandAsync(CreatedCollaboratorWithoutUserDTO collaborator)
         {
-            var eventMessage = new CreateUserFromCollaboratorCommand(correlationId,
-                InstanceInfo.InstanceId,
-                collaborator.Id,
+            var eventMessage = new CreateUserFromCollaboratorCommand(
                 collaborator.Names,
                 collaborator.Surnames,
                 collaborator.Email,

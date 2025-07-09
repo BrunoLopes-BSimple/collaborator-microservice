@@ -8,5 +8,5 @@ public interface IMessagePublisher
     Task PublishCollaboratorCreatedAsync(ICollaborator collaborator);
     Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator);
     Task SendCollaboratorWithoutUserCreatedAsync(CreateCollaboratorWithoutUserDTO collaborator);
-    Task SendCreateUserFromCollaboratorCommandAsync(CreatedCollaboratorWithoutUserDTO dto, Guid correlationId);
+    Task SendCreateUserFromCollaboratorCommandAsync(CreatedCollaboratorWithoutUserDTO dto);
 }
