@@ -2,7 +2,7 @@
 param (
     [int]$DbPort = 5432,
     [int]$MicroservicePort = 5073,
-    [string]$BaseDatabaseName = "absantee-collaborator-cmd",
+    [string]$BaseDatabaseName = "absanteecollaboratorcmd",
     [string]$DbUser = "postgres",
     [string]$DbPassword = "postgres",
     [string]$DbHost = "localhost",

@@ -6,12 +6,12 @@ namespace Infrastructure.DataModel;
 
 public class CollaboratorTempDataModel : ICollaboratorTempVisitor
 {
-    public Guid Id { get; set; }
-    public PeriodDateTime PeriodDateTime { get; set; }
-    public string Names {  get; set; }
-    public string Surnames {  get; set; }
-    public string Email {  get; set; }
-    public DateTime FinalDate { get; set; }
+    public required Guid Id { get; set; }
+    public required PeriodDateTime PeriodDateTime { get; set; }
+    public required string Names {  get; set; }
+    public required string Surnames {  get; set; }
+    public required string Email {  get; set; }
+    public required DateTime FinalDate { get; set; }
 
     public CollaboratorTempDataModel()
     {

@@ -14,5 +14,5 @@ public class CreateCollabDTO
     public DateTime? FinalDate { get; set; }
 
     // Common
-    public PeriodDateTime PeriodDateTime { get; set; }
+    public required PeriodDateTime PeriodDateTime { get; set; }
 }
