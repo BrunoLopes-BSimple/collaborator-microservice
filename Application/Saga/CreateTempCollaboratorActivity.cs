@@ -5,7 +5,7 @@ using MassTransit;
 
 namespace Application.Saga;
 
-public class CreateTempCollaboratorActivity : IStateMachineActivity<CollaboratorCreatedState, CollaboratorTempCreationCommandMessage>
+public class CreateTempCollaboratorActivity : ICreateTempCollaboratorActivity
 {
     private readonly ICollaboratorTempService _collaboratorTempService;
     private readonly IMessageSender _messageSender;
@@ -19,8 +19,6 @@ public class CreateTempCollaboratorActivity : IStateMachineActivity<Collaborator
     public async Task Execute(BehaviorContext<CollaboratorCreatedState, CollaboratorTempCreationCommandMessage> context, IBehavior<CollaboratorCreatedState, CollaboratorTempCreationCommandMessage> next)
     {
         var msg = context.Message;
-
-        context.Saga.Email = msg.Email;
 
         var collabTemp = await _collaboratorTempService.Create(msg.PeriodDateTime, msg.Names, msg.Surnames, msg.Email, msg.FinalDate);
 

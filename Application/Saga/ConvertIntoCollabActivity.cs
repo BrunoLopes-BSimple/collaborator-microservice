@@ -5,7 +5,7 @@ using MassTransit;
 
 namespace Application.Saga
 {
-    public class ConvertIntoCollabActivity : IStateMachineActivity<CollaboratorCreatedState, UserCreatedMessage>
+    public class ConvertIntoCollabActivity : IConvertIntoCollabActivity
     {
         private ICollaboratorService _collaboratorService;
         private IMessagePublisher _messagePublisher;
