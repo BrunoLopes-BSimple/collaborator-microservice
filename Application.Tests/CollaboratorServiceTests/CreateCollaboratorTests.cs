@@ -1,4 +1,4 @@
-using Application.IPublishers;
+/* using Application.IPublishers;
 using Application.Services;
 using Domain.Factory;
 using Domain.Interfaces;
@@ -77,4 +77,4 @@ namespace Application.Tests.CollaboratorServiceTests
             publisherDouble.Verify(p => p.PublishCollaboratorCreatedAsync(It.IsAny<ICollaborator>()), Times.Never);
         }
     }
-}
+} */

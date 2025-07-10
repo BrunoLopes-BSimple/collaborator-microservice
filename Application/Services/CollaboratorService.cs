@@ -6,6 +6,11 @@ using Application.IPublishers;
 using Application.Interfaces;
 using Application.DTO;
 using Application.DTO.Collaborators;
+using Domain.Factory.CollabWithoutUserFactory;
+using Infrastructure.Resolvers;
+using Infrastructure.DataModel;
+using Domain.Contracts;
+using Application.ISender;
 namespace Application.Services;
 
 public class CollaboratorService : ICollaboratorService
@@ -13,12 +18,14 @@ public class CollaboratorService : ICollaboratorService
     private ICollaboratorRepository _collaboratorRepository;
     private ICollaboratorFactory _collaboratorFactory;
     private readonly IMessagePublisher _publisher;
+    private readonly IMessageSender _sender;
 
-    public CollaboratorService(ICollaboratorRepository collaboratorRepository, ICollaboratorFactory collaboratorFactory, IMessagePublisher messagePublisher)
+    public CollaboratorService(ICollaboratorRepository collaboratorRepository, ICollaboratorFactory collaboratorFactory, IMessagePublisher publisher, IMessageSender sender)
     {
         _collaboratorRepository = collaboratorRepository;
         _collaboratorFactory = collaboratorFactory;
-        _publisher = messagePublisher;
+        _publisher = publisher;
+        _sender = sender;
     }
 
     public async Task<ICollaborator?> AddCollaboratorReferenceAsync(Guid collabId, Guid userId, PeriodDateTime period)
@@ -83,5 +90,45 @@ public class CollaboratorService : ICollaboratorService
         await _publisher.PublishCollaboratorUpdatedAsync(updateCollabDetails);
         var result = new CollabUpdatedDTO(dto.Id, dto.PeriodDateTime);
         return Result<CollabUpdatedDTO>.Success(result);
+    }
+
+    public async Task<Result> CreateCollaboratorWithoutUser(CollabWithoutUserDTO dto)
+    {
+        try
+        {
+            var startSagaMessage = new CreateCollaboratorCommand(
+                Guid.NewGuid(),
+                dto.Names,
+                dto.Surnames,
+                dto.Email,
+                dto.CollaboratorPeriod,
+                dto.UserDeactivationDate
+            );
+
+            await _sender.SendCollaboratorCreationCommandAsync(startSagaMessage);
+            return Result.Success();
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<ICollaboratorWithoutUser>.Failure(Error.BadRequest(ex.Message));
+        }
+    }
+
+    public async Task FinalizeAsync(Guid collaboratorId, Guid userId, PeriodDateTime period)
+    {
+        var collabDM = new CollaboratorDataModel { Id = collaboratorId, UserId = userId, PeriodDateTime = period };
+        var collab = _collaboratorFactory.Create(collabDM);
+
+        ICollaborator createdCollab;
+        try
+        {
+            createdCollab = await _collaboratorRepository.AddAsync(collab);
+            await _publisher.PublishCollaboratorCreatedAsync(createdCollab);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error occurred ----------------------------------------: {e.Message}");
+        }
+
     }
 }

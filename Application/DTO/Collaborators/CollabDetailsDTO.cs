@@ -9,6 +9,6 @@ namespace Application.DTO.Collaborators
     public class CollabDetailsDTO
     {
         public Guid Id { get; set; }
-        public PeriodDateTime PeriodDateTime { get; set; }
+        public PeriodDateTime PeriodDateTime { get; set; } = null!;
     }
 }

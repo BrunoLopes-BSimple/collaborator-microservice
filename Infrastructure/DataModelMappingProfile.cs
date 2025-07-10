@@ -9,12 +9,14 @@ public class DataModelMappingProfile : Profile
 {
     public DataModelMappingProfile()
     {
-        CreateMap<User, UserDataModel>();
         CreateMap<Collaborator, CollaboratorDataModel>();
-        CreateMap<CollaboratorDataModel, Collaborator>()
-            .ConvertUsing<CollaboratorDataModelConverter>();
-        CreateMap<UserDataModel, User>()
-            .ConvertUsing<UserDataModelConverter>();
+        CreateMap<CollaboratorDataModel, Collaborator>().ConvertUsing<CollaboratorDataModelConverter>();
+
+        CreateMap<User, UserDataModel>();
+        CreateMap<UserDataModel, User>().ConvertUsing<UserDataModelConverter>();
+
+        CreateMap<CollaboratorWithoutUser, CollaboratorWithoutUserDataModel>();
+        CreateMap<CollaboratorWithoutUserDataModel, CollaboratorWithoutUser>().ConvertUsing<CollaboratorWithoutUserDataModelConverter>();
     }
 
 }

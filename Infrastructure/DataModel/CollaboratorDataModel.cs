@@ -16,7 +16,7 @@ public class CollaboratorDataModel : ICollaboratorVisitor
     {
         Id = collaborator.Id;
         UserId = collaborator.UserId;
-        PeriodDateTime = (PeriodDateTime)collaborator.PeriodDateTime;
+        PeriodDateTime = collaborator.PeriodDateTime;
     }
 
     public CollaboratorDataModel()
