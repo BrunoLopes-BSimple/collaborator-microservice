@@ -1,10 +1,14 @@
-﻿using Infrastructure;
+﻿using Application.IPublishers;
+using Application.ISenders;
+using Infrastructure;
+using InterfaceAdapters.IntegrationTests.CollaboratorControllerTests;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 using Xunit;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace InterfaceAdapters.IntegrationTests;
 
@@ -20,6 +24,7 @@ public class IntegrationTestsWebApplicationFactory<TProgram> : WebApplicationFac
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment("Testing");
         builder.ConfigureServices(services =>
         {
             // Remove existing DbContext
@@ -38,6 +43,13 @@ public class IntegrationTestsWebApplicationFactory<TProgram> : WebApplicationFac
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AbsanteeContext>();
             db.Database.EnsureCreated();
+
+            // Replace the real publisher with a fake one for testing
+            services.RemoveAll<IMessagePublisher>();
+            services.AddSingleton<IMessagePublisher, FakeMessagePublisher>();
+
+            services.RemoveAll<IMessageSender>();
+            services.AddSingleton<IMessageSender, FakeMessageSender>();
         });
     }
 

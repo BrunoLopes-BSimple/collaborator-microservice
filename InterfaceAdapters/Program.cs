@@ -119,8 +119,13 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AbsanteeContext>();
-    dbContext.Database.Migrate();
+    var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+    if (!env.IsEnvironment("Testing"))
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AbsanteeContext>();
+        dbContext.Database.Migrate();
+    }
 }
 
 app.Run();

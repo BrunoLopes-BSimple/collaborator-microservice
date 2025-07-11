@@ -14,13 +14,6 @@ public class CollaboratorCreatedStateMachineTests
     public async Task Should_Transition_Through_States_And_Finalize()
     {
         // Arrange
-        var collabId = Guid.NewGuid();
-        var periodDateTime = new PeriodDateTime(DateTime.UtcNow.AddMonths(1), DateTime.UtcNow.AddMonths(3));
-        var names = "John";
-        var surnames = "Doe";
-        var email = "johnDoe@email.com";
-        var finalDate = DateTime.UtcNow.AddYears(1);
-
         var createTempActivityMock = new Mock<ICreateTempCollaboratorActivity>();
         createTempActivityMock
             .Setup(x => x.Execute(It.IsAny<BehaviorContext<CollaboratorCreatedState, CollaboratorTempCreationCommandMessage>>(), It.IsAny<IBehavior<CollaboratorCreatedState, CollaboratorTempCreationCommandMessage>>()))
@@ -40,8 +33,8 @@ public class CollaboratorCreatedStateMachineTests
         await using var provider = new ServiceCollection()
             .AddMassTransitTestHarness(cfg =>
             {
-                cfg.AddSingleton<ICreateTempCollaboratorActivity>(createTempActivityMock.Object);
-                cfg.AddSingleton<IConvertIntoCollabActivity>(convertIntoCollabActivityMock.Object);
+                cfg.AddSingleton(createTempActivityMock.Object);
+                cfg.AddSingleton(convertIntoCollabActivityMock.Object);
                 cfg.AddSagaStateMachine<CollaboratorCreatedStateMachine, CollaboratorCreatedState>();
 
             })
@@ -50,6 +43,14 @@ public class CollaboratorCreatedStateMachineTests
         var harness = provider.GetRequiredService<ITestHarness>();
 
         await harness.Start();
+
+        var collabId = Guid.NewGuid();
+        var periodDateTime = new PeriodDateTime(DateTime.UtcNow.AddMonths(1), DateTime.UtcNow.AddMonths(3));
+        var names = "John";
+        var surnames = "Doe";
+        var email = "johnDoe@email.com";
+        var finalDate = DateTime.UtcNow.AddYears(1);
+
         // Act: Publish initial event to create saga
         await harness.Bus.Publish(new CollaboratorTempCreationCommandMessage
         (
