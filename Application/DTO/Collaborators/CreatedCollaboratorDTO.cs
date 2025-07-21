@@ -1,22 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Models;
 
-namespace Application.DTO
-{
-    public class CreatedCollaboratorDTO
-    {
-        public Guid UserId { get; set; }
-        public Guid CollaboratorId { get; set; }
-        public PeriodDateTime PeriodDateTime { get; set; }
+namespace Application.DTO;
 
-        public CreatedCollaboratorDTO(Guid userId, Guid collaboratorId, PeriodDateTime periodDateTime)
-        {
-            UserId = userId;
-            CollaboratorId = collaboratorId;
-            PeriodDateTime = periodDateTime;
-        }
-    }
-}
+public record CreatedCollaboratorDTO(Guid UserId, Guid CollaboratorId, PeriodDateTime PeriodDateTime);

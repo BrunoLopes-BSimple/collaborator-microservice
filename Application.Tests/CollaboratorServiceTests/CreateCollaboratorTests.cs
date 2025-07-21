@@ -1,4 +1,4 @@
-/* using Application.IPublishers;
+using Application.IPublishers;
 using Application.Services;
 using Domain.Factory;
 using Domain.Interfaces;
@@ -6,6 +6,7 @@ using Domain.IRepository;
 using Domain.Models;
 using Moq;
 using Application.DTO;
+using Application.ISender;
 
 namespace Application.Tests.CollaboratorServiceTests
 {
@@ -18,6 +19,7 @@ namespace Application.Tests.CollaboratorServiceTests
             var collabRepoDouble = new Mock<ICollaboratorRepository>();
             var collabFactoryDouble = new Mock<ICollaboratorFactory>();
             var publisherDouble = new Mock<IMessagePublisher>();
+            var senderDouble = new Mock<IMessageSender>();
 
             var userId = Guid.NewGuid();
             var collabId = Guid.NewGuid();
@@ -28,7 +30,7 @@ namespace Application.Tests.CollaboratorServiceTests
             collabFactoryDouble.Setup(f => f.Create(userId, period)).ReturnsAsync(collab);
             collabRepoDouble.Setup(cr => cr.AddAsync(It.IsAny<ICollaborator>())).ReturnsAsync(collab);
 
-            var service = new CollaboratorService(collabRepoDouble.Object, collabFactoryDouble.Object, publisherDouble.Object);
+            var service = new CollaboratorService(collabRepoDouble.Object, collabFactoryDouble.Object, publisherDouble.Object, senderDouble.Object);
             var createDto = new CreateCollaboratorDTO(userId, period);
 
             // Act
@@ -52,6 +54,7 @@ namespace Application.Tests.CollaboratorServiceTests
             var collabRepoDouble = new Mock<ICollaboratorRepository>();
             var collabFactoryDouble = new Mock<ICollaboratorFactory>();
             var publisherDouble = new Mock<IMessagePublisher>();
+            var senderDouble = new Mock<IMessageSender>();
 
             var createDto = new CreateCollaboratorDTO(
                 Guid.NewGuid(),
@@ -62,7 +65,7 @@ namespace Application.Tests.CollaboratorServiceTests
 
             collabFactoryDouble.Setup(f => f.Create(createDto.UserId, createDto.PeriodDateTime)).ThrowsAsync(expectedException);
 
-            var service = new CollaboratorService(collabRepoDouble.Object, collabFactoryDouble.Object, publisherDouble.Object);
+            var service = new CollaboratorService(collabRepoDouble.Object, collabFactoryDouble.Object, publisherDouble.Object, senderDouble.Object);
 
 
             // Act
@@ -77,4 +80,4 @@ namespace Application.Tests.CollaboratorServiceTests
             publisherDouble.Verify(p => p.PublishCollaboratorCreatedAsync(It.IsAny<ICollaborator>()), Times.Never);
         }
     }
-} */
+}

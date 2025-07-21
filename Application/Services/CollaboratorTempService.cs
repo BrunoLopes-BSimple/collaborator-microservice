@@ -13,13 +13,11 @@ namespace Application.Services
     {
         private readonly ICollaboratorWithoutUserRepository _tempRepo;
         private readonly ICollaboratorWithoutUserFactory _tempFactory;
-        private readonly IMessageSender _sender;
 
-        public CollaboratorTempService(ICollaboratorWithoutUserRepository tempRepo, ICollaboratorWithoutUserFactory tempFactory, IMessageSender sender)
+        public CollaboratorTempService(ICollaboratorWithoutUserRepository tempRepo, ICollaboratorWithoutUserFactory tempFactory)
         {
             _tempRepo = tempRepo;
             _tempFactory = tempFactory;
-            _sender = sender;
         }
 
         public async Task<Result<CreatedCollaboratorTempDTO>> Create(PeriodDateTime periodDateTime, string names, string surnames, string email, DateTime finalDate)
