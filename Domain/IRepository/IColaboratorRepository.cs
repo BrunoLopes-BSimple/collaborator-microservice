@@ -12,6 +12,5 @@ public interface ICollaboratorRepository : IGenericRepositoryEF<ICollaborator, C
     Task<IEnumerable<ICollaborator>> GetByIdsAsync(IEnumerable<Guid> ids);
     Task<IEnumerable<ICollaborator>> GetByUsersIdsAsync(IEnumerable<Guid> ids);
     Task<IEnumerable<Collaborator>> GetActiveCollaborators();
-    Task<long> GetCount();
     Task<Collaborator?> UpdateCollaborator(ICollaborator collab);
 }

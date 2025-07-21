@@ -35,11 +35,6 @@ public class CollaboratorRepositoryEF : GenericRepositoryEF<ICollaborator, Colla
                     && collaborator.PeriodDateTime._initDate <= c.PeriodDateTime._finalDate);
     }
 
-    public async Task<long> GetCount()
-    {
-        return await _context.Set<CollaboratorDataModel>().LongCountAsync();
-    }
-
     public override ICollaborator? GetById(Guid id)
     {
         var collabDM = this._context.Set<CollaboratorDataModel>()
