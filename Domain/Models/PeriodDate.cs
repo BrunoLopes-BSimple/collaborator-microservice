@@ -1,6 +1,4 @@
-﻿using Domain.Interfaces;
-
-namespace Domain.Models;
+﻿namespace Domain.Models;
 public class PeriodDate
 {
     public DateOnly InitDate { get; set; }

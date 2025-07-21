@@ -127,7 +127,7 @@ public class CollaboratorService : ICollaboratorService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error occurred ----------------------------------------: {e.Message}");
+            Console.WriteLine($"Error occurred: {e.Message}");
         }
 
     }

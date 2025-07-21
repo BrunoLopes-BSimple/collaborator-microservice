@@ -45,7 +45,6 @@ builder.Services.AddScoped<IUserRepository, UserRepositoryEF>();
 builder.Services.AddScoped<ICollaboratorRepository, CollaboratorRepositoryEF>();
 builder.Services.AddScoped<ICollaboratorWithoutUserRepository, CollaboratorWithoutUserRepository>();
 
-
 //Factories
 builder.Services.AddScoped<ICollaboratorFactory, CollaboratorFactory>();
 builder.Services.AddScoped<IUserFactory, UserFactory>();
@@ -107,23 +106,6 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// Bloco de depuração de DI temporário
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        Console.WriteLine("--- A VERIFICAR DEPENDÊNCIAS DA SAGA ---");
-        var activity = scope.ServiceProvider.GetRequiredService<FinalizeCollaboratorActivity>();
-        Console.WriteLine("--- DEPENDÊNCIAS DA FINALIZE ACTIVITY OK ---");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"--- !!! ERRO DE INJEÇÃO DE DEPENDÊNCIA: {ex.Message} ---");
-    }
-}
-
-// ... resto do seu Program.cs
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

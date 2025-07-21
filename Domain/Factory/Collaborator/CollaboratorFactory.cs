@@ -28,7 +28,7 @@ namespace Domain.Factory
             var collaboratorAlreadyExists = await _collabRepository.ExistsByUserIdAsync(userId);
             if (collaboratorAlreadyExists)
             {
-                throw new InvalidOperationException("A collaborator with this UserId already exists.");
+                throw new ArgumentException("A collaborator with this UserId already exists.");
             }
 
             return new Collaborator(userId, periodDateTime);

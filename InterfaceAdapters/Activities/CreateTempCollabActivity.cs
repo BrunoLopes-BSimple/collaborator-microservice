@@ -46,7 +46,6 @@ namespace InterfaceAdapters.Activities
             );
 
             await next.Execute(context);
-            Console.WriteLine("Passei ao proximo passo ----------------------------------------");
         }
 
         public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);

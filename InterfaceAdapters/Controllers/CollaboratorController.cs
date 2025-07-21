@@ -32,10 +32,7 @@ public class CollaboratorController : ControllerBase
         var collabWithoutUserDTO = new CollabWithoutUserDTO(collabDto.Names, collabDto.Surnames, collabDto.Email, collabDto.FinalDate.Value, collabDto.PeriodDateTime);
         var result = await _collabService.CreateCollaboratorWithoutUser(collabWithoutUserDTO);
 
-        if (result.IsFailure)
-            return BadRequest(result.Error);
-
-        return Accepted();
+        return result.ToActionResult();
     }
 
     [HttpPut]
