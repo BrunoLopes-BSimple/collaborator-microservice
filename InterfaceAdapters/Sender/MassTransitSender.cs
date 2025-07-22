@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.ISender;
 using Domain.Contracts;
 using Domain.Models;
@@ -24,10 +20,10 @@ namespace InterfaceAdapters.Sender
             await endpoint.Send(message);
         }
 
-        public async Task SendUserForCollabCommandAsync(Guid id, PeriodDateTime periodDateTime, string names, string surnames, string email, DateTime finalDate)
+        public async Task SendUserForCollabCommandAsync(UserForCollabCommandMessage message)
         {
             var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:user-for-collab"));
-            await endpoint.Send(new UserForCollabCommandMessage(id, periodDateTime, names, surnames, email, finalDate));
+            await endpoint.Send(message);
         }
     }
 }

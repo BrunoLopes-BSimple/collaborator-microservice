@@ -31,8 +31,7 @@ builder.Services.AddDbContext<AbsanteeContext>(opt =>
 //Services
 builder.Services.AddScoped<ICollaboratorService, CollaboratorService>();
 builder.Services.AddScoped<ICollaboratorTempService, CollaboratorTempService>();
-
-builder.Services.AddTransient<UserService>();
+builder.Services.AddScoped<IUserService ,UserService>();
 
 builder.Services.AddTransient<IMessagePublisher, MassTransitPublisher>();
 builder.Services.AddTransient<IMessageSender, MassTransitSender>();

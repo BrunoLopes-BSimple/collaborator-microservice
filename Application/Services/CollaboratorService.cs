@@ -72,24 +72,31 @@ public class CollaboratorService : ICollaboratorService
         }
     }
 
-    public async Task<Result<CollabUpdatedDTO>?> EditCollaborator(CollabData dto)
+    public async Task<Result<CollabUpdatedDTO>> EditCollaborator(CollabData dto)
     {
-        var collab = await _collaboratorRepository.GetByIdAsync(dto.Id);
-        if (collab == null)
-            return Result<CollabUpdatedDTO>.Failure(Error.NotFound("Collaborator not found."));
+        try
+        {
+            var collab = await _collaboratorRepository.GetByIdAsync(dto.Id);
+            if (collab == null)
+                return Result<CollabUpdatedDTO>.Failure(Error.NotFound("Collaborator not found."));
 
 
-        collab.UpdatePeriod(dto.PeriodDateTime);
+            collab.UpdatePeriod(dto.PeriodDateTime);
 
-        var updateCollabDetails = await _collaboratorRepository.UpdateCollaborator(collab);
+            var updateCollabDetails = await _collaboratorRepository.UpdateCollaborator(collab);
 
-        if (updateCollabDetails == null)
-            return Result<CollabUpdatedDTO>.Failure(Error.InternalServerError("Failed to update collaborator."));
+            if (updateCollabDetails == null)
+                return Result<CollabUpdatedDTO>.Failure(Error.InternalServerError("Failed to update collaborator."));
 
 
-        await _publisher.PublishCollaboratorUpdatedAsync(updateCollabDetails);
-        var result = new CollabUpdatedDTO(dto.Id, dto.PeriodDateTime);
-        return Result<CollabUpdatedDTO>.Success(result);
+            await _publisher.PublishCollaboratorUpdatedAsync(updateCollabDetails);
+            var result = new CollabUpdatedDTO(dto.Id, dto.PeriodDateTime);
+            return Result<CollabUpdatedDTO>.Success(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<CollabUpdatedDTO>.Failure(Error.BadRequest(ex.Message));
+        }
     }
 
     public async Task<Result> CreateCollaboratorWithoutUser(CollabWithoutUserDTO dto)

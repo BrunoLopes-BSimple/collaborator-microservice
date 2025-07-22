@@ -8,7 +8,7 @@ namespace Infrastructure.Tests.DataModelTests;
 public class CollaboratorDataModelTests
 {
     [Fact]
-    public void ShouldCreateDataModel_WhenPassingValidData()
+    public void ShouldCreateDataModel_WhenPassingValidCollaborator()
     {
         // arrange
         var collabId = Guid.NewGuid();
@@ -22,5 +22,17 @@ public class CollaboratorDataModelTests
 
         // act
         new CollaboratorDataModel(collab.Object);
+    }
+
+    [Fact]
+    public void ShouldCreateDataModel_WhenPassingValidData()
+    {
+        // arrange
+        var collabId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var period = new PeriodDateTime(DateTime.Now.AddDays(1), DateTime.Now.AddDays(5));
+
+        // act
+        new CollaboratorDataModel(collabId, userId, period);
     }
 }

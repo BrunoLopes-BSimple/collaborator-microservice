@@ -26,13 +26,14 @@ public class CollaboratorController : ControllerBase
             return collabCreated.ToActionResult();
         }
 
-        if (string.IsNullOrEmpty(collabDto.Names) || string.IsNullOrEmpty(collabDto.Surnames) || string.IsNullOrEmpty(collabDto.Email) || !collabDto.FinalDate.HasValue)
+        if (collabDto.FinalDate < DateTime.UtcNow)
             return BadRequest("Missing required fields for temp collaborator creation.");
 
-        var collabWithoutUserDTO = new CollabWithoutUserDTO(collabDto.Names, collabDto.Surnames, collabDto.Email, collabDto.FinalDate.Value, collabDto.PeriodDateTime);
+        var collabWithoutUserDTO = new CollabWithoutUserDTO(collabDto.Names, collabDto.Surnames, collabDto.Email, collabDto.FinalDate, collabDto.PeriodDateTime);
         var result = await _collabService.CreateCollaboratorWithoutUser(collabWithoutUserDTO);
 
-        return result.ToActionResult();
+        var returnResult = result.ToActionResult();
+        return returnResult;
     }
 
     [HttpPut]
@@ -41,8 +42,7 @@ public class CollaboratorController : ControllerBase
         var collabData = new CollabData(newCollabData.Id, newCollabData.PeriodDateTime);
 
         var result = await _collabService.EditCollaborator(collabData);
-        if (result == null) return BadRequest("Invalid Arguments");
-        return Ok(result);
+        return result.ToActionResult();
     }
 
 }

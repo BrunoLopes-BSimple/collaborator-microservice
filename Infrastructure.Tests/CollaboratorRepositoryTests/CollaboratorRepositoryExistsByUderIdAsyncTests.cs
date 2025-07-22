@@ -16,7 +16,7 @@ public class CollaboratorRepositoryExistsByUderIdAsyncTests : RepositoryTestBase
         var collabDouble = new Mock<ICollaborator>();
         collabDouble.Setup(c => c.UserId).Returns(userId);
         collabDouble.Setup(c => c.Id).Returns(Guid.NewGuid());
-        
+
         var dataModel = new CollaboratorDataModel(collabDouble.Object);
         context.Collaborators.Add(dataModel);
         await context.SaveChangesAsync();
@@ -28,6 +28,19 @@ public class CollaboratorRepositoryExistsByUderIdAsyncTests : RepositoryTestBase
 
         // Assert
         Assert.True(exists);
+    }
+
+    [Fact]
+    public async Task ExistsByUserIdAsync_WhenUserDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var repo = new CollaboratorRepositoryEF(context, _mapper.Object);
+
+        // Act
+        var exists = await repo.ExistsByUserIdAsync(Guid.NewGuid());
+
+        // Assert
+        Assert.False(exists);
     }
 
 }

@@ -12,4 +12,9 @@ public class UserDataModel : IUserVisitor
     public UserDataModel()
     {
     }
+
+    public UserDataModel(Guid id)
+    {
+        Id = id;
+    }
 }

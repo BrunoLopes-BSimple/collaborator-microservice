@@ -2,7 +2,6 @@ using Application.IPublishers;
 using Domain.Interfaces;
 using MassTransit;
 using Domain.Messages;
-using Domain.Contracts;
 
 namespace InterfaceAdapters.Publishers
 {
@@ -35,11 +34,6 @@ namespace InterfaceAdapters.Publishers
             );
 
             await _publishEndpoint.Publish(eventMessage);
-        }
-
-        public async Task PublishCollaboratorCreationRequestedAsync(CreateCollaboratorCommand message)
-        {
-            await _publishEndpoint.Publish(message);
         }
     }
 }

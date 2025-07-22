@@ -1,4 +1,3 @@
-using Domain.Contracts;
 using Domain.Interfaces;
 
 namespace Application.IPublishers
@@ -7,6 +6,5 @@ namespace Application.IPublishers
     {
         Task PublishCollaboratorCreatedAsync(ICollaborator collaborator);
         Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator);
-        Task PublishCollaboratorCreationRequestedAsync(CreateCollaboratorCommand message);
     }
 }

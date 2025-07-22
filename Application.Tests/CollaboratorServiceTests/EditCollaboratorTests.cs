@@ -68,5 +68,4 @@ public class EditCollaboratorTests
 
         publisherDouble.Verify(p => p.PublishCollaboratorUpdatedAsync(It.IsAny<ICollaborator>()), Times.Never);
     }
-
 }

@@ -1,12 +1,8 @@
-﻿using System.Net.Mail;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Interfaces;
 using Domain.IRepository;
 using Domain.Models;
-using Domain.Visitor;
 using Infrastructure.DataModel;
-using Infrastructure.Resolvers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;

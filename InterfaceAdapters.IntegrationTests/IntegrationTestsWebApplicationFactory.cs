@@ -1,10 +1,14 @@
-﻿/* using Infrastructure;
+﻿using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Application.IPublishers;
+using InterfaceAdapters.IntegrationTests.ControllerTests;
+using Application.ISender;
 
 namespace InterfaceAdapters.IntegrationTests;
 
@@ -20,6 +24,7 @@ public class IntegrationTestsWebApplicationFactory<TProgram> : WebApplicationFac
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment("Testing");
         builder.ConfigureServices(services =>
         {
             // Remove existing DbContext
@@ -38,6 +43,12 @@ public class IntegrationTestsWebApplicationFactory<TProgram> : WebApplicationFac
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AbsanteeContext>();
             db.Database.EnsureCreated();
+
+            services.RemoveAll<IMessagePublisher>();
+            services.AddSingleton<IMessagePublisher, FakeMessagePublisher>();
+
+            services.RemoveAll<IMessageSender>();
+            services.AddSingleton<IMessageSender, FakeMessageSender>();
         });
     }
 
@@ -51,4 +62,3 @@ public class IntegrationTestsWebApplicationFactory<TProgram> : WebApplicationFac
         await _postgres.StopAsync();
     }
 }
- */

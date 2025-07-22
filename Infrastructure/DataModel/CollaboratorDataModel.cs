@@ -18,4 +18,11 @@ public class CollaboratorDataModel : ICollaboratorVisitor
     public CollaboratorDataModel()
     {
     }
+
+    public CollaboratorDataModel(Guid id, Guid userId, PeriodDateTime periodDateTime)
+    {
+        Id = id;
+        UserId = userId;
+        PeriodDateTime = periodDateTime;
+    }
 }

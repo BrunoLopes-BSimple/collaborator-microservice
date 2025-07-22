@@ -36,14 +36,15 @@ namespace InterfaceAdapters.Activities
 
             context.Saga.CollaboratorId = collabTemp.Value.Id;
 
-            await _messageSender.SendUserForCollabCommandAsync(
+            var command = new UserForCollabCommandMessage(
                 collabTemp.Value.Id,
                 collabTemp.Value.PeriodDateTime,
                 collabTemp.Value.Names,
                 collabTemp.Value.Surnames,
                 collabTemp.Value.Email,
-                collabTemp.Value.FinalDate
-            );
+                collabTemp.Value.FinalDate);
+
+            await _messageSender.SendUserForCollabCommandAsync(command);
 
             await next.Execute(context);
         }

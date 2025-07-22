@@ -1,4 +1,3 @@
-using Application.IPublishers;
 using Domain.Interfaces;
 using Domain.Models;
 using MassTransit;
@@ -9,7 +8,7 @@ using Xunit;
 
 namespace InterfaceAdapters.IntegrationTests.PublisherTests
 {
-    public class PublishCollaboratorTests
+    public class PublishCollaboratorCreatedTests
     {
         [Fact]
         public async Task PublishCollaboratorCreatedAsync_ShouldPublishEventWithCorrectData()
