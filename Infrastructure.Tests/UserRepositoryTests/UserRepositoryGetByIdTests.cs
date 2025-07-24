@@ -9,7 +9,7 @@ namespace Infrastructure.Tests.UserRepositoryTests;
 public class UserRepositoryGetByIdTests : RepositoryTestBase
 {
     [Fact]
-    public void WhenSearchingById_ThenReturnsCollaborator()
+    public void WhenSearchingById_ThenReturnsUser()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -39,7 +39,7 @@ public class UserRepositoryGetByIdTests : RepositoryTestBase
     }
 
     [Fact]
-    public void WhenSearchingByIdWithNoCollaborators_ThenReturnsNull()
+    public void WhenSearchingByIdWithNoUsers_ThenReturnsNull()
     {
         // Arrange
         var userRepo = new UserRepositoryEF(context, _mapper.Object);

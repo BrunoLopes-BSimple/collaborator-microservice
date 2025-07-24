@@ -9,7 +9,7 @@ namespace Infrastructure.Tests.UserRepositoryTests;
 public class UserRepositoryGetByIdAsyncTests : RepositoryTestBase
 {
     [Fact]
-    public async Task WhenSearchingById_ThenReturnsCollaborator()
+    public async Task WhenSearchingById_ThenReturnsUser()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -39,7 +39,7 @@ public class UserRepositoryGetByIdAsyncTests : RepositoryTestBase
     }
 
     [Fact]
-    public async Task WhenSearchingByIdWithNoCollaborators_ThenReturnsNull()
+    public async Task WhenSearchingByIdWithNoUsers_ThenReturnsNull()
     {
         // Arrange
         var userRepo = new UserRepositoryEF(context, _mapper.Object);
