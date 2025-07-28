@@ -9,5 +9,6 @@ namespace InterfaceAdapters.Saga
         public string? CurrentState { get; set; }
         public Guid CollaboratorId { get; set; }
         public string? Email { get; set; }
+        public PeriodDateTime CollaboratorPeriod{ get; set; }
     }
 }

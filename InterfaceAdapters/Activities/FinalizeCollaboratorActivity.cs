@@ -25,7 +25,7 @@ namespace InterfaceAdapters.Activities
 
         public async Task Execute(BehaviorContext<CollaboratorCreationSagaState, UserCreatedForCollab> context, IBehavior<CollaboratorCreationSagaState, UserCreatedForCollab> next)
         {
-            await _collaboratorService.FinalizeAsync(context.Saga.CollaboratorId, context.Message.Id, context.Message.PeriodDateTime);
+            await _collaboratorService.FinalizeAsync(context.Saga.CollaboratorId, context.Message.Id, context.Saga.CollaboratorPeriod);
         }
 
         public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);

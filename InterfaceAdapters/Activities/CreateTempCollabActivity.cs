@@ -28,6 +28,7 @@ namespace InterfaceAdapters.Activities
             var msg = context.Message;
 
             context.Saga.Email = msg.Email;
+            context.Saga.CollaboratorPeriod = msg.PeriodDateTimeOfCollaborator;
 
             var collabTemp = await _collabTempService.Create(msg.PeriodDateTimeOfCollaborator, msg.Names, msg.Surnames, msg.Email, msg.DeactivationDateOfUser);
 
